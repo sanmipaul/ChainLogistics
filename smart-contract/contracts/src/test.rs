@@ -603,3 +603,80 @@ fn test_search_products_no_results() {
     let results = client.search_products(&String::from_str(&env, "Wine"), &10u32);
     assert_eq!(results.len(), 0);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INPUT SANITIZATION TESTS (Issue #161)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+use crate::validation_contract::ValidationContract;
+
+#[test]
+fn test_validate_stellar_address_valid() {
+    // Valid Stellar address (56 chars, starts with G)
+    let valid_addr = "GCGORBD5ZMFK3PAPSVTRJY4KP2EFJWLF5GQRJQD2K3W6U5GIX5FZIKJL";
+    assert!(ValidationContract::validate_stellar_address(valid_addr).is_ok());
+}
+
+#[test]
+fn test_validate_stellar_address_invalid() {
+    // Wrong length
+    assert!(ValidationContract::validate_stellar_address("GABC123").is_err());
+
+    // Doesn't start with G
+    assert!(ValidationContract::validate_stellar_address("ACGORBD5ZMFK3PAPSVTRJY4KP2EFJWLF5GQRJQD2K3W6U5GIX5FZIKJL").is_err());
+
+    // Contains special characters
+    assert!(ValidationContract::validate_stellar_address("GCGORBD5ZMFK3PAPSVTRJY4KP2EFJWLF5GQRJQD2K3W6U5GIX5FZIKJ!").is_err());
+}
+
+#[test]
+fn test_validate_product_id_format_valid() {
+    assert!(ValidationContract::validate_product_id_format("PROD-123").is_ok());
+    assert!(ValidationContract::validate_product_id_format("coffee_eth_001").is_ok());
+    assert!(ValidationContract::validate_product_id_format("Item1").is_ok());
+}
+
+#[test]
+fn test_validate_product_id_format_invalid() {
+    // Empty
+    assert!(ValidationContract::validate_product_id_format("").is_err());
+
+    // Starts with hyphen
+    assert!(ValidationContract::validate_product_id_format("-INVALID").is_err());
+
+    // Contains prohibited characters
+    assert!(ValidationContract::validate_product_id_format("PROD<123>").is_err());
+    assert!(ValidationContract::validate_product_id_format("PROD&TEST").is_err());
+    assert!(ValidationContract::validate_product_id_format("PROD;DROP").is_err());
+}
+
+#[test]
+fn test_sanitize_metadata_content_valid() {
+    // Valid content should pass
+    assert!(ValidationContract::sanitize_metadata_content("Valid description here").is_ok());
+    assert!(ValidationContract::sanitize_metadata_content("Temperature: 25.5C").is_ok());
+}
+
+#[test]
+fn test_sanitize_metadata_content_invalid() {
+    // Contains prohibited characters
+    assert!(ValidationContract::sanitize_metadata_content("<script>alert(1)</script>").is_err());
+    assert!(ValidationContract::sanitize_metadata_content("DROP TABLE products;").is_err()); // semicolon
+    assert!(ValidationContract::sanitize_metadata_content("Value & More").is_err());
+}
+
+#[test]
+fn test_validate_location_format_valid() {
+    assert!(ValidationContract::validate_location_format("Yirgacheffe, Ethiopia").is_ok());
+    assert!(ValidationContract::validate_location_format("New York, USA").is_ok());
+}
+
+#[test]
+fn test_validate_location_format_invalid() {
+    // Empty
+    assert!(ValidationContract::validate_location_format("").is_err());
+
+    // Contains prohibited characters
+    assert!(ValidationContract::validate_location_format("Location<script>").is_err());
+    assert!(ValidationContract::validate_location_format("DROP TABLE products;").is_err());
+}

@@ -32,6 +32,13 @@ pub enum Error {
     TooManyCustomFields = 23,
     CustomFieldValueTooLong = 24,
 
+    // --- Input Sanitization (25-35) ---
+    InvalidStellarAddress = 25,
+    InvalidProductIdFormat = 26,
+    InvalidLocationFormat = 27,
+    InvalidMetadataContent = 28,
+    ProhibitedCharacter = 29,
+
     // --- Batch (30-40) ---
     EmptyBatch = 30,
     BatchTooLarge = 31,
