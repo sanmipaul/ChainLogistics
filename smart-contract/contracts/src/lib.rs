@@ -12,6 +12,8 @@
 mod authorization;
 mod contract;
 mod error;
+mod fraud_detection;
+mod fraud_detection_contract;
 mod multisig;
 mod storage;
 mod storage_contract;
@@ -61,6 +63,8 @@ mod integration_tests;
 pub use authorization::*;
 pub use contract::*;
 pub use error::*;
+pub use fraud_detection::*;
+pub use fraud_detection_contract::*;
 pub use multisig::*;
 pub use types::*;
 
