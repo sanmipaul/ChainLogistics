@@ -13,11 +13,13 @@ mod authorization;
 mod contract;
 mod error;
 mod multisig;
+mod privacy_contract;
 mod storage;
 mod storage_contract;
 mod types;
 mod validation;
 mod validation_contract;
+mod zk_privacy;
 
 // Building a single WASM artifact from a crate that contains multiple `#[contract]`
 // definitions can trigger Soroban macro export symbol collisions (method names like
@@ -62,7 +64,9 @@ pub use authorization::*;
 pub use contract::*;
 pub use error::*;
 pub use multisig::*;
+pub use privacy_contract::*;
 pub use types::*;
+pub use zk_privacy::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use admin::*;
